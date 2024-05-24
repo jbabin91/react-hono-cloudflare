@@ -7,5 +7,5 @@
     "allowSyntheticDefaultImports": true,
     "strict": true
   },
-  "include": ["vite.config.ts", "tailwind.config.ts"]
+  "include": ["drizzle.config.ts", "tailwind.config.ts", "vite.config.ts"]
 }

@@ -3,7 +3,7 @@ import { Command as CommandPrimitive } from 'cmdk';
 import * as React from 'react';
 
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { cn } from '@/libs/utils';
+import { cn } from '@/utils/cn';
 
 import { Icons } from '../icons';
 

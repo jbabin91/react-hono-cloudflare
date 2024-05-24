@@ -2,7 +2,7 @@ import type * as React from 'react';
 import { DayPicker } from 'react-day-picker';
 
 import { buttonVariants } from '@/components/ui/button';
-import { cn } from '@/libs/utils';
+import { cn } from '@/utils/cn';
 
 import { Icons } from '../icons';
 

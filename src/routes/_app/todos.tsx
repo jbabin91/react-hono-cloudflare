@@ -5,6 +5,7 @@ import { type InferRequestType, type InferResponseType } from 'hono';
 import { Button } from '@/components/ui';
 import { client } from '@/libs/api-client';
 import { queryClient } from '@/libs/react-query';
+import { formatDate } from '@/utils/format';
 
 export const Route = createFileRoute('/_app/todos')({
   component: Todos,
@@ -13,13 +14,13 @@ export const Route = createFileRoute('/_app/todos')({
 function Todos() {
   const query = useQuery({
     queryFn: async () => {
-      const res = await client.api.todo.$get();
+      const res = await client.api.todos.$get();
       return await res.json();
     },
     queryKey: ['todos'],
   });
 
-  const $post = client.api.todo.$post;
+  const $post = client.api.todos.$post;
 
   const mutation = useMutation<
     InferResponseType<typeof $post>,
@@ -44,13 +45,24 @@ function Todos() {
     <div>
       <Button
         onClick={() => {
-          mutation.mutate({ id: Date.now().toString(), title: 'Write code' });
+          mutation.mutate({
+            description: 'A longer description about writing code',
+            id: Date.now().toString(),
+            title: 'Write code',
+          });
         }}
       >
         Add Todo
       </Button>
       <ul>
-        {query.data?.todos.map((todo) => <li key={todo.id}>{todo.title}</li>)}
+        {query.data?.todos.map((todo) => (
+          <li key={todo.id}>
+            <h3>
+              {todo.title} - <span>{formatDate(todo.createdAt)}</span>
+            </h3>
+            <p>{todo.description}</p>
+          </li>
+        ))}
       </ul>
     </div>
   );

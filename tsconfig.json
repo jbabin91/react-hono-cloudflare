@@ -9,6 +9,8 @@
     /* Bundler mode */
     "moduleResolution": "Bundler",
     "allowImportingTsExtensions": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
@@ -20,13 +22,16 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
 
+    /* Typechecking */
+    "incremental": true,
+    "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
+
     /* Path aliases */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@api": ["api/index.ts"]
+      "@/*": ["src/*"]
     }
   },
-  "include": ["src", "api", "functions"],
+  "include": ["src", "functions"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
