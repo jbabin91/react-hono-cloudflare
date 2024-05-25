@@ -63,9 +63,6 @@ export default defineConfig(({ mode }) => {
         external: ['postgres'],
         wranglerConfig: {
           port: 8787,
-          vars: {
-            DATABASE_URL: process.env.DATABASE_URL ?? '',
-          },
         },
         wranglerConfigPath: './wrangler.toml',
       }),

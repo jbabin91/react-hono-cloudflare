@@ -3,9 +3,12 @@ import { cors } from 'hono/cors';
 import { csrf } from 'hono/csrf';
 import { logger } from 'hono/logger';
 
+import { initDb } from '@/api/libs/db';
+import { initLucia } from '@/api/libs/lucia';
+import { sessionMiddleware } from '@/api/middleware/sessionMiddleware';
+import { authRoutes } from '@/api/routes/auth';
 import { todoRoutes } from '@/api/routes/todos';
 import { type HonoContext } from '@/api/types';
-import { initDb } from '@/db/db';
 
 const DEV_URL = 'http://localhost:5173';
 const PREVIEW_URL = 'http://localhost:8788';
@@ -15,6 +18,7 @@ const app = new Hono<HonoContext>();
 app.use(logger());
 app.use(
   cors({
+    credentials: true,
     origin: (origin) =>
       origin.endsWith('.pages.dev')
         ? origin
@@ -34,11 +38,14 @@ app.use(
 );
 
 app.use('*', async (c, next) => {
-  console.log('DATABASE_URL', c.env.DATABASE_URL);
   const db = initDb(c.env.DATABASE_URL);
+  const lucia = initLucia(db);
   c.set('db', db);
+  c.set('lucia', lucia);
   return await next();
 });
+
+app.use('*', sessionMiddleware);
 
 const route = app
   .basePath('/api')
@@ -47,6 +54,7 @@ const route = app
       message: 'Hello World!',
     });
   })
+  .route('/auth', authRoutes)
   .route('/todos', todoRoutes);
 
 export type AppType = typeof route;

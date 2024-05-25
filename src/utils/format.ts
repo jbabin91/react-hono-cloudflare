@@ -6,5 +6,5 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export function formatDate(date: string) {
-  return dayjs(date).format('MMMM D, YYYY h:mm A');
+  return dayjs(date).format('MMMM D, YYYY h:mm:ss A');
 }

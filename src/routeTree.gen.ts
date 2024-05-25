@@ -12,14 +12,22 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as AboutImport } from './routes/about'
+import { Route as AuthRouteImport } from './routes/_auth/route'
 import { Route as AppRouteImport } from './routes/_app/route'
 import { Route as IndexImport } from './routes/index'
+import { Route as AuthRegisterImport } from './routes/_auth/register'
+import { Route as AuthLoginImport } from './routes/_auth/login'
 import { Route as AppTodosImport } from './routes/_app/todos'
 
 // Create/Update Routes
 
 const AboutRoute = AboutImport.update({
   path: '/about',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AuthRouteRoute = AuthRouteImport.update({
+  id: '/_auth',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -31,6 +39,16 @@ const AppRouteRoute = AppRouteImport.update({
 const IndexRoute = IndexImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const AuthRegisterRoute = AuthRegisterImport.update({
+  path: '/register',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+
+const AuthLoginRoute = AuthLoginImport.update({
+  path: '/login',
+  getParentRoute: () => AuthRouteRoute,
 } as any)
 
 const AppTodosRoute = AppTodosImport.update({
@@ -56,6 +74,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRoute
     }
+    '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRoute
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -70,6 +95,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTodosImport
       parentRoute: typeof AppRouteImport
     }
+    '/_auth/login': {
+      id: '/_auth/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof AuthLoginImport
+      parentRoute: typeof AuthRouteImport
+    }
+    '/_auth/register': {
+      id: '/_auth/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof AuthRegisterImport
+      parentRoute: typeof AuthRouteImport
+    }
   }
 }
 
@@ -78,6 +117,10 @@ declare module '@tanstack/react-router' {
 export const routeTree = rootRoute.addChildren({
   IndexRoute,
   AppRouteRoute: AppRouteRoute.addChildren({ AppTodosRoute }),
+  AuthRouteRoute: AuthRouteRoute.addChildren({
+    AuthLoginRoute,
+    AuthRegisterRoute,
+  }),
   AboutRoute,
 })
 
@@ -91,6 +134,7 @@ export const routeTree = rootRoute.addChildren({
       "children": [
         "/",
         "/_app",
+        "/_auth",
         "/about"
       ]
     },
@@ -103,12 +147,27 @@ export const routeTree = rootRoute.addChildren({
         "/_app/todos"
       ]
     },
+    "/_auth": {
+      "filePath": "_auth/route.tsx",
+      "children": [
+        "/_auth/login",
+        "/_auth/register"
+      ]
+    },
     "/about": {
       "filePath": "about.tsx"
     },
     "/_app/todos": {
       "filePath": "_app/todos.tsx",
       "parent": "/_app"
+    },
+    "/_auth/login": {
+      "filePath": "_auth/login.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/register": {
+      "filePath": "_auth/register.tsx",
+      "parent": "/_auth"
     }
   }
 }

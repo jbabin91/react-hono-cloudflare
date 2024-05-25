@@ -1,10 +1,12 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { type InferRequestType, type InferResponseType } from 'hono';
+import { type Error } from 'postgres';
 
 import { Button } from '@/components/ui';
 import { client } from '@/libs/api-client';
 import { queryClient } from '@/libs/react-query';
+import { useTodos } from '@/modules/todos';
 import { formatDate } from '@/utils/format';
 
 export const Route = createFileRoute('/_app/todos')({
@@ -12,13 +14,7 @@ export const Route = createFileRoute('/_app/todos')({
 });
 
 function Todos() {
-  const query = useQuery({
-    queryFn: async () => {
-      const res = await client.api.todos.$get();
-      return await res.json();
-    },
-    queryKey: ['todos'],
-  });
+  const todos = useTodos();
 
   const $post = client.api.todos.$post;
 
@@ -41,6 +37,10 @@ function Todos() {
     },
   });
 
+  if (todos.isLoading) return <div>Loading...</div>;
+
+  if (todos.isError) return <div>Error: {todos.error.message}</div>;
+
   return (
     <div>
       <Button
@@ -55,7 +55,7 @@ function Todos() {
         Add Todo
       </Button>
       <ul>
-        {query.data?.todos.map((todo) => (
+        {todos.data?.map((todo) => (
           <li key={todo.id}>
             <h3>
               {todo.title} - <span>{formatDate(todo.createdAt)}</span>
