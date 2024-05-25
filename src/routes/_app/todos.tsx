@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { type InferRequestType, type InferResponseType } from 'hono';
 import { type Error } from 'postgres';
 
+import { Head } from '@/components/seo';
 import { Button } from '@/components/ui';
 import { client } from '@/libs/api-client';
 import { queryClient } from '@/libs/react-query';
@@ -37,33 +38,36 @@ function Todos() {
     },
   });
 
-  if (todos.isLoading) return <div>Loading...</div>;
-
-  if (todos.isError) return <div>Error: {todos.error.message}</div>;
-
   return (
-    <div>
-      <Button
-        onClick={() => {
-          mutation.mutate({
-            description: 'A longer description about writing code',
-            id: Date.now().toString(),
-            title: 'Write code',
-          });
-        }}
-      >
-        Add Todo
-      </Button>
-      <ul>
-        {todos.data?.map((todo) => (
-          <li key={todo.id}>
-            <h3>
-              {todo.title} - <span>{formatDate(todo.createdAt)}</span>
-            </h3>
-            <p>{todo.description}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <>
+      <Head description="Todos page" title="Todos" />
+      <div>
+        <Button
+          onClick={() => {
+            mutation.mutate({
+              description: 'A longer description about writing code',
+              id: Date.now().toString(),
+              title: 'Write code',
+            });
+          }}
+        >
+          Add Todo
+        </Button>
+        {todos.isLoading ? <div>Loading...</div> : null}
+        {todos.isError ? <div>Error: {todos.error.message}</div> : null}
+        {todos.data ? (
+          <ul>
+            {todos.data?.map((todo) => (
+              <li key={todo.id}>
+                <h3>
+                  {todo.title} - <span>{formatDate(todo.createdAt)}</span>
+                </h3>
+                <p>{todo.description}</p>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </div>
+    </>
   );
 }
