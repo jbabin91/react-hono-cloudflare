@@ -27,6 +27,7 @@ module.exports = {
       },
     ],
     'unicorn/no-null': 'off',
+    'unicorn/prefer-top-level-await': 'off',
     'unicorn/prevent-abbreviations': 'off',
   },
   overrides: [

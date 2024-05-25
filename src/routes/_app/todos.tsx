@@ -1,13 +1,8 @@
-import { useMutation } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { type InferRequestType, type InferResponseType } from 'hono';
-import { type Error } from 'postgres';
 
 import { Head } from '@/components/seo';
 import { Button } from '@/components/ui';
-import { client } from '@/libs/api-client';
-import { queryClient } from '@/libs/react-query';
-import { useTodos } from '@/modules/todos';
+import { useCreateTodo, useTodos } from '@/modules/todos';
 import { formatDate } from '@/utils/format';
 
 export const Route = createFileRoute('/_app/todos')({
@@ -16,27 +11,7 @@ export const Route = createFileRoute('/_app/todos')({
 
 function Todos() {
   const todos = useTodos();
-
-  const $post = client.api.todos.$post;
-
-  const mutation = useMutation<
-    InferResponseType<typeof $post>,
-    Error,
-    InferRequestType<typeof $post>['form']
-  >({
-    mutationFn: async (todo) => {
-      const res = await $post({
-        form: todo,
-      });
-      return await res.json();
-    },
-    onError: (error) => {
-      console.error(error);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todos'] });
-    },
-  });
+  const createTodo = useCreateTodo();
 
   return (
     <>
@@ -44,7 +19,7 @@ function Todos() {
       <div>
         <Button
           onClick={() => {
-            mutation.mutate({
+            createTodo.mutate({
               description: 'A longer description about writing code',
               id: Date.now().toString(),
               title: 'Write code',

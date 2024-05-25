@@ -8,9 +8,11 @@ import { getTodosQueryOptions } from '@/modules/todos/api/get-todos';
 
 const $post = client.api.todos.$post;
 
-export async function createTodo(form: InferRequestType<typeof $post>['form']) {
+export async function createTodo(
+  variables: InferRequestType<typeof $post>['form'],
+) {
   const res = await $post({
-    form,
+    form: variables,
   });
   if (!res.ok) throw new Error('Failed to create a todo');
   return res.json();
