@@ -14,12 +14,14 @@ export const authMiddleware = createMiddleware<HonoContext>(async (c, next) => {
   }
   const { session, user } = await lucia.validateSession(sessionId);
   if (session?.fresh) {
-    c.header('Set-Cookie', lucia.createSessionCookie(session.id).serialize(), {
+    const sessionCookie = lucia.createSessionCookie(session.id);
+    c.header('Set-Cookie', sessionCookie.serialize(), {
       append: true,
     });
   }
   if (!session) {
-    c.header('Set-Cookie', lucia.createBlankSessionCookie().serialize(), {
+    const sessionCookie = lucia.createBlankSessionCookie();
+    c.header('Set-Cookie', sessionCookie.serialize(), {
       append: true,
     });
   }

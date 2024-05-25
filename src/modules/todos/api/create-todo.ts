@@ -12,6 +12,7 @@ export async function createTodo(form: InferRequestType<typeof $post>['form']) {
   const res = await $post({
     form,
   });
+  if (!res.ok) throw new Error('Failed to create a todo');
   return res.json();
 }
 

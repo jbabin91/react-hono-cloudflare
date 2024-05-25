@@ -18,7 +18,11 @@ const app = new Hono<HonoContext>();
 app.use(logger());
 app.use(
   cors({
+    allowHeaders: ['Content-Type', 'Authorization', 'Origin'],
+    allowMethods: ['GET', 'HEAD', 'POST', 'PUT', 'OPTIONS'],
     credentials: true,
+    exposeHeaders: ['Content-Length', 'Set-Cookie'],
+    maxAge: 600,
     origin: (origin) =>
       origin.endsWith('.pages.dev')
         ? origin
@@ -39,7 +43,7 @@ app.use(
 
 app.use('*', async (c, next) => {
   const db = initDb(c.env.DATABASE_URL);
-  const lucia = initLucia(db);
+  const lucia = initLucia(c, db);
   c.set('db', db);
   c.set('lucia', lucia);
   return await next();

@@ -20,7 +20,7 @@ export const authRoutes = new Hono<HonoContext>()
         where: eq(users.email, email),
       });
 
-      if (!existingUser) {
+      if (existingUser) {
         return c.json({ message: 'Invalid email or password' }, 400);
       }
 

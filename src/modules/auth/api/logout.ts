@@ -9,6 +9,7 @@ const $post = client.api.auth.logout.$post;
 
 export async function logoutFn() {
   const res = await $post();
+  if (!res.ok) throw new Error('Failed to logout');
   return await res.json();
 }
 

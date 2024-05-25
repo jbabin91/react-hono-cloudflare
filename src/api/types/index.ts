@@ -6,6 +6,7 @@ import { type initLucia } from '@/api/libs/lucia';
 export type HonoContext = {
   Bindings: {
     DATABASE_URL: string;
+    ENVIRONMENT: string;
   };
   Variables: {
     db: ReturnType<typeof initDb>;

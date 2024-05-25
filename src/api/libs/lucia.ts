@@ -1,10 +1,11 @@
 import { DrizzlePostgreSQLAdapter } from '@lucia-auth/adapter-drizzle';
+import { type Context } from 'hono';
 import { Lucia } from 'lucia';
 
 import { type initDb } from '@/api/libs/db';
 import { sessions, users } from '@/db/schema';
 
-export function initLucia(db: ReturnType<typeof initDb>) {
+export function initLucia(c: Context, db: ReturnType<typeof initDb>) {
   const adapter = new DrizzlePostgreSQLAdapter(db, sessions, users);
   const lucia = new Lucia(adapter, {
     getUserAttributes: (attributes) => ({
@@ -15,7 +16,7 @@ export function initLucia(db: ReturnType<typeof initDb>) {
     }),
     sessionCookie: {
       attributes: {
-        secure: true,
+        secure: c.env.ENVIRONMENT === 'production',
       },
     },
   });

@@ -9,9 +9,10 @@ import { getUserQueryOptions } from '@/modules/auth/api/get-user';
 const $post = client.api.auth.register.$post;
 
 export async function registerFn(form: InferRequestType<typeof $post>['form']) {
-  const res = await client.api.auth.login.$post({
+  const res = await client.api.auth.register.$post({
     form,
   });
+  if (!res.ok) throw new Error('Failed to register');
   return await res.json();
 }
 
@@ -27,7 +28,6 @@ export function useRegister({ mutationConfig }: UseRegisterOptions = {}) {
   return useMutation({
     mutationFn: registerFn,
     onError: (...args) => {
-      console.error(args[0].message);
       toast.error('Error registering', {
         description: 'Please try again',
       });

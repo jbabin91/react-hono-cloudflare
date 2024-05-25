@@ -12,6 +12,7 @@ export async function loginFn(form: InferRequestType<typeof $post>['form']) {
   const res = await client.api.auth.login.$post({
     form,
   });
+  if (!res.ok) throw new Error('Failed to login');
   return await res.json();
 }
 
