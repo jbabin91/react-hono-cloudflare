@@ -6,7 +6,7 @@ import { type HonoContext } from '@/api/types';
 export const authMiddleware = createMiddleware<HonoContext>(async (c, next) => {
   const lucia = c.get('lucia');
   const sessionId = getCookie(c, lucia.sessionCookieName) ?? null;
-  console.log('authMiddleware sessionId:', sessionId);
+  // console.log('authMiddleware sessionId:', sessionId);
   if (!sessionId) {
     c.set('user', null);
     c.set('session', null);

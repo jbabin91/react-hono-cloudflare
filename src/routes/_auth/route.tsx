@@ -6,7 +6,7 @@ export const Route = createFileRoute('/_auth')({
 
 function Auth() {
   return (
-    <div className="mt-10 flex justify-center">
+    <div className="flex flex-col items-center py-24">
       <Outlet />
     </div>
   );

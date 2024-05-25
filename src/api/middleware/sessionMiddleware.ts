@@ -7,7 +7,7 @@ export const sessionMiddleware = createMiddleware<HonoContext>(
   async (c, next) => {
     const lucia = c.get('lucia');
     const sessionId = getCookie(c, lucia.sessionCookieName) ?? null;
-    console.log('sessionMiddleware sessionId:', sessionId);
+    // console.log('sessionMiddleware sessionId:', sessionId);
     if (!sessionId) {
       c.set('user', null);
       c.set('session', null);

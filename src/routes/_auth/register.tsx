@@ -1,7 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createFileRoute, useRouter } from '@tanstack/react-router';
+import {
+  createFileRoute,
+  redirect,
+  useRouter,
+  useRouterState,
+} from '@tanstack/react-router';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { type z } from 'zod';
+import { z } from 'zod';
 
 import { Head } from '@/components/seo';
 import {
@@ -21,16 +27,33 @@ import {
   Input,
 } from '@/components/ui';
 import { registerUserSchema } from '@/db/schema';
-import { useRegister } from '@/modules/auth';
+
+const fallback = '/todos';
 
 export const Route = createFileRoute('/_auth/register')({
+  beforeLoad: ({ context, search }) => {
+    if (context.auth.isAuthenticated) {
+      throw redirect({ to: search.redirect ?? fallback });
+    }
+  },
   component: Register,
+  validateSearch: z.object({
+    redirect: z.string().optional().catch(''),
+  }),
 });
 
 function Register() {
   const router = useRouter();
   const navigate = Route.useNavigate();
-  const register = useRegister();
+  const search = Route.useSearch();
+  const isLoading = useRouterState({ select: (s) => s.isLoading });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { auth } = Route.useRouteContext({
+    select: ({ auth }) => ({ auth }),
+  });
+  const register = auth.useRegister({
+    onSettled: () => navigate({ to: search.redirect ?? fallback }),
+  });
 
   const form = useForm<z.infer<typeof registerUserSchema>>({
     defaultValues: {
@@ -43,9 +66,18 @@ function Register() {
   });
 
   async function handleRegister(values: z.infer<typeof registerUserSchema>) {
-    register.mutate(values);
-    await router.invalidate();
+    setIsSubmitting(true);
+    try {
+      register.mutate(values);
+      await router.invalidate();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
+
+  const isRegistering = isLoading || isSubmitting;
 
   return (
     <>
@@ -114,7 +146,7 @@ function Register() {
               />
             </CardContent>
             <CardFooter className="flex flex-col gap-4">
-              <Button className="w-full" type="submit">
+              <Button className="w-full" loading={isRegistering} type="submit">
                 Sign up
               </Button>
               <div className="text-center text-sm">

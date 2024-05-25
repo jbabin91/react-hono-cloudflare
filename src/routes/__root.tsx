@@ -1,4 +1,10 @@
-import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
+import { type QueryClient } from '@tanstack/react-query';
+import {
+  createRootRouteWithContext,
+  Link,
+  Outlet,
+  useRouter,
+} from '@tanstack/react-router';
 import { Suspense } from 'react';
 
 import { ModeToggle } from '@/components/mode-toggle';
@@ -6,10 +12,21 @@ import {
   TanStackQueryDevtools,
   TanStackRouterDevtools,
 } from '@/components/utils';
-import { useLogout, useUser } from '@/modules/auth';
+import { type AuthContext, useUser } from '@/modules/auth';
 
-export const Route = createRootRoute({
-  component: () => (
+export const Route = createRootRouteWithContext<{
+  auth: AuthContext;
+  queryClient: QueryClient;
+}>()({
+  component: RootComponent,
+});
+
+function RootComponent() {
+  const { isAuthenticated } = Route.useRouteContext({
+    select: ({ auth }) => ({ isAuthenticated: auth.isAuthenticated }),
+  });
+
+  return (
     <>
       <header className="flex justify-between p-2">
         <nav className="flex gap-2 p-2">
@@ -19,9 +36,11 @@ export const Route = createRootRoute({
           <Link className="[&.active]:font-bold" to="/about">
             About
           </Link>
-          <Link className="[&.active]:font-bold" to="/todos">
-            Todos
-          </Link>
+          {isAuthenticated ? (
+            <Link className="[&.active]:font-bold" to="/todos">
+              Todos
+            </Link>
+          ) : null}
         </nav>
         <div className="flex gap-2">
           <AuthButtons />
@@ -37,19 +56,31 @@ export const Route = createRootRoute({
         <TanStackQueryDevtools />
       </Suspense>
     </>
-  ),
-});
+  );
+}
 
 function AuthButtons() {
+  const router = useRouter();
   const user = useUser();
-  const logout = useLogout();
+  const navigate = Route.useNavigate();
+  const { auth } = Route.useRouteContext({
+    select: ({ auth }) => ({ auth }),
+  });
+  const logout = auth.useLogout({
+    onSettled: () => navigate({ to: '/login' }),
+  });
+
+  async function handleLogout() {
+    logout.mutate({});
+    await router.invalidate();
+  }
 
   return (
     <>
       {user.data ? (
         <div className="flex gap-2 p-2">
           <p>{user.data.name}</p>
-          <Link onClick={() => logout.mutate(undefined, {})}>Logout</Link>
+          <Link onClick={handleLogout}>Logout</Link>
         </div>
       ) : (
         <div className="flex gap-2 p-2">
