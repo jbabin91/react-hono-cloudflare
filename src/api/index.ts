@@ -7,7 +7,10 @@ import { initDb } from '@/api/libs/db';
 import { initLucia } from '@/api/libs/lucia';
 import { sessionMiddleware } from '@/api/middleware/sessionMiddleware';
 import { authRoutes } from '@/api/routes/auth';
-import { todoRoutes } from '@/api/routes/todos';
+import { commentRoutes } from '@/api/routes/comments';
+import { discussionRoutes } from '@/api/routes/discussions';
+import { teamRoutes } from '@/api/routes/teams';
+import { userRoutes } from '@/api/routes/users';
 import { type HonoContext } from '@/api/types';
 
 const DEV_URL = 'http://localhost:5173';
@@ -59,7 +62,10 @@ const route = app
     });
   })
   .route('/auth', authRoutes)
-  .route('/todos', todoRoutes);
+  .route('/users', userRoutes)
+  .route('/teams', teamRoutes)
+  .route('/comments', commentRoutes)
+  .route('/discussions', discussionRoutes);
 
 export type AppType = typeof route;
 

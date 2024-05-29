@@ -3,7 +3,7 @@ import { type Context } from 'hono';
 import { Lucia } from 'lucia';
 
 import { type initDb } from '@/api/libs/db';
-import { sessions, users } from '@/db/schema';
+import { type Roles, sessions, users } from '@/db/schema';
 
 export function initLucia(c: Context, db: ReturnType<typeof initDb>) {
   const adapter = new DrizzlePostgreSQLAdapter(db, sessions, users);
@@ -13,6 +13,8 @@ export function initLucia(c: Context, db: ReturnType<typeof initDb>) {
       firstName: attributes.firstName,
       lastName: attributes.lastName,
       name: attributes.name,
+      role: attributes.role,
+      teamId: attributes.teamId,
     }),
     sessionCookie: {
       attributes: {
@@ -36,4 +38,6 @@ type DatabaseUserAttributes = {
   firstName: string;
   lastName: string;
   name: string;
+  teamId: string;
+  role: Roles;
 };

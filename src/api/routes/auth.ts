@@ -5,34 +5,77 @@ import { Hono } from 'hono';
 import { Scrypt } from 'lucia';
 
 import { type HonoContext } from '@/api/types';
-import { loginUserSchema, registerUserSchema, users } from '@/db/schema';
+import {
+  loginUserSchema,
+  registerUserSchema,
+  type Roles,
+  roles,
+  teams,
+  users,
+} from '@/db/schema';
 
 export const authRoutes = new Hono<HonoContext>()
   .get('/me', (c) => {
-    return c.json(c.var.user);
+    try {
+      return c.json(c.var.user);
+    } catch (error: any) {
+      console.error(error);
+      return c.json(
+        { message: error?.message || 'Internal Server Error' },
+        500,
+      );
+    }
   })
   .post('/register', zValidator('form', registerUserSchema), async (c) => {
     const db = c.get('db');
     const lucia = c.get('lucia');
-    const { firstName, lastName, email, password } = c.req.valid('form');
+    const data = c.req.valid('form');
     try {
       const existingUser = await db.query.users.findFirst({
-        where: eq(users.email, email),
+        where: eq(users.email, data.email),
       });
 
       if (existingUser) {
         return c.json({ message: 'Invalid email or password' }, 400);
       }
 
-      const hashedPassword = await new Scrypt().hash(password);
+      let teamId;
+      let role: Roles;
+
+      if (data.teamId) {
+        const existingTeam = await db.query.teams.findFirst({
+          where: eq(teams.id, data.teamId),
+        });
+
+        if (!existingTeam) {
+          return c.json(
+            { message: 'The team you are trying to join does not exist' },
+            400,
+          );
+        }
+        teamId = data.teamId;
+        role = roles.user;
+      } else {
+        const team = await db
+          .insert(teams)
+          .values({
+            name: data.teamName ?? `${data.firstName}'s Team`,
+          })
+          .returning()
+          .then((res) => res[0]);
+        teamId = team.id;
+        role = roles.admin;
+      }
+
+      const hashedPassword = await new Scrypt().hash(data.password);
 
       const user = await db
         .insert(users)
         .values({
-          email,
-          firstName,
-          lastName,
-          name: `${firstName} ${lastName}`,
+          ...data,
+          name: `${data.firstName} ${data.lastName}`,
+          role,
+          teamId,
           password: hashedPassword,
         })
         .returning()
@@ -45,18 +88,21 @@ export const authRoutes = new Hono<HonoContext>()
       });
 
       return c.json(user, 201);
-    } catch (error) {
-      console.log(error);
-      return c.json({ message: 'Internal server error' }, 500);
+    } catch (error: any) {
+      console.error(error);
+      return c.json(
+        { message: error?.message || 'Internal Server Error' },
+        500,
+      );
     }
   })
   .post('/login', zValidator('form', loginUserSchema), async (c) => {
     const db = c.get('db');
     const lucia = c.get('lucia');
-    const { email, password } = c.req.valid('form');
+    const data = c.req.valid('form');
     try {
       const existingUser = await db.query.users.findFirst({
-        where: eq(users.email, email),
+        where: eq(users.email, data.email),
       });
 
       if (!existingUser) {
@@ -65,7 +111,7 @@ export const authRoutes = new Hono<HonoContext>()
 
       const verifyPassword = await new Scrypt().verify(
         existingUser.password,
-        password,
+        data.password,
       );
 
       if (!verifyPassword) {
@@ -84,12 +130,19 @@ export const authRoutes = new Hono<HonoContext>()
         lastName: existingUser.lastName,
         name: existingUser.name,
         email: existingUser.email,
+        teamId: existingUser.teamId,
+        role: existingUser.role,
+        bio: existingUser.bio,
+        createdAt: existingUser.createdAt,
       };
 
       return c.json(user);
-    } catch (error) {
-      console.log(error);
-      return c.json({ message: 'Internal server error' }, 500);
+    } catch (error: any) {
+      console.error(error);
+      return c.json(
+        { message: error?.message || 'Internal Server Error' },
+        500,
+      );
     }
   })
   .post('/logout', async (c) => {
@@ -103,8 +156,11 @@ export const authRoutes = new Hono<HonoContext>()
       c.set('session', null);
       c.set('user', null);
       return c.json(null);
-    } catch (error) {
-      console.log(error);
-      return c.json({ message: 'Internal server error' }, 500);
+    } catch (error: any) {
+      console.error(error);
+      return c.json(
+        { message: error?.message || 'Internal Server Error' },
+        500,
+      );
     }
   });
