@@ -1,12 +1,8 @@
+/** @type {import("eslint").Linter.Config} */
 module.exports = {
   root: true,
   env: { browser: true, es2022: true, node: true },
-  extends: [
-    'eslint:recommended',
-    'plugin:react-hooks/recommended',
-    'plugin:unicorn/recommended',
-    'prettier',
-  ],
+  extends: ['eslint:recommended', 'plugin:unicorn/recommended', 'prettier'],
   ignorePatterns: ['dist', '.eslintrc.cjs', '*.gen.ts'],
   plugins: ['import', 'simple-import-sort', 'sort-keys-fix'],
   rules: {

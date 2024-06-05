@@ -17,7 +17,12 @@ import { Route as AppRouteImport } from './routes/_app/route'
 import { Route as IndexImport } from './routes/index'
 import { Route as AuthRegisterImport } from './routes/_auth/register'
 import { Route as AuthLoginImport } from './routes/_auth/login'
-import { Route as AppTodosImport } from './routes/_app/todos'
+import { Route as AppUsersImport } from './routes/_app/users'
+import { Route as AppProfileImport } from './routes/_app/profile'
+import { Route as AppDiscussionsImport } from './routes/_app/discussions'
+import { Route as AppDashboardImport } from './routes/_app/dashboard'
+import { Route as AppDiscussionsIndexImport } from './routes/_app/discussions.index'
+import { Route as AppDiscussionsDiscussionIdImport } from './routes/_app/discussions.$discussionId'
 
 // Create/Update Routes
 
@@ -51,10 +56,37 @@ const AuthLoginRoute = AuthLoginImport.update({
   getParentRoute: () => AuthRouteRoute,
 } as any)
 
-const AppTodosRoute = AppTodosImport.update({
-  path: '/todos',
+const AppUsersRoute = AppUsersImport.update({
+  path: '/users',
   getParentRoute: () => AppRouteRoute,
 } as any)
+
+const AppProfileRoute = AppProfileImport.update({
+  path: '/profile',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+
+const AppDiscussionsRoute = AppDiscussionsImport.update({
+  path: '/discussions',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+
+const AppDashboardRoute = AppDashboardImport.update({
+  path: '/dashboard',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+
+const AppDiscussionsIndexRoute = AppDiscussionsIndexImport.update({
+  path: '/',
+  getParentRoute: () => AppDiscussionsRoute,
+} as any)
+
+const AppDiscussionsDiscussionIdRoute = AppDiscussionsDiscussionIdImport.update(
+  {
+    path: '/$discussionId',
+    getParentRoute: () => AppDiscussionsRoute,
+  } as any,
+)
 
 // Populate the FileRoutesByPath interface
 
@@ -88,11 +120,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutImport
       parentRoute: typeof rootRoute
     }
-    '/_app/todos': {
-      id: '/_app/todos'
-      path: '/todos'
-      fullPath: '/todos'
-      preLoaderRoute: typeof AppTodosImport
+    '/_app/dashboard': {
+      id: '/_app/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AppDashboardImport
+      parentRoute: typeof AppRouteImport
+    }
+    '/_app/discussions': {
+      id: '/_app/discussions'
+      path: '/discussions'
+      fullPath: '/discussions'
+      preLoaderRoute: typeof AppDiscussionsImport
+      parentRoute: typeof AppRouteImport
+    }
+    '/_app/profile': {
+      id: '/_app/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AppProfileImport
+      parentRoute: typeof AppRouteImport
+    }
+    '/_app/users': {
+      id: '/_app/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof AppUsersImport
       parentRoute: typeof AppRouteImport
     }
     '/_auth/login': {
@@ -109,6 +162,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRegisterImport
       parentRoute: typeof AuthRouteImport
     }
+    '/_app/discussions/$discussionId': {
+      id: '/_app/discussions/$discussionId'
+      path: '/$discussionId'
+      fullPath: '/discussions/$discussionId'
+      preLoaderRoute: typeof AppDiscussionsDiscussionIdImport
+      parentRoute: typeof AppDiscussionsImport
+    }
+    '/_app/discussions/': {
+      id: '/_app/discussions/'
+      path: '/'
+      fullPath: '/discussions/'
+      preLoaderRoute: typeof AppDiscussionsIndexImport
+      parentRoute: typeof AppDiscussionsImport
+    }
   }
 }
 
@@ -116,7 +183,15 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren({
   IndexRoute,
-  AppRouteRoute: AppRouteRoute.addChildren({ AppTodosRoute }),
+  AppRouteRoute: AppRouteRoute.addChildren({
+    AppDashboardRoute,
+    AppDiscussionsRoute: AppDiscussionsRoute.addChildren({
+      AppDiscussionsDiscussionIdRoute,
+      AppDiscussionsIndexRoute,
+    }),
+    AppProfileRoute,
+    AppUsersRoute,
+  }),
   AuthRouteRoute: AuthRouteRoute.addChildren({
     AuthLoginRoute,
     AuthRegisterRoute,
@@ -144,7 +219,10 @@ export const routeTree = rootRoute.addChildren({
     "/_app": {
       "filePath": "_app/route.tsx",
       "children": [
-        "/_app/todos"
+        "/_app/dashboard",
+        "/_app/discussions",
+        "/_app/profile",
+        "/_app/users"
       ]
     },
     "/_auth": {
@@ -157,8 +235,24 @@ export const routeTree = rootRoute.addChildren({
     "/about": {
       "filePath": "about.tsx"
     },
-    "/_app/todos": {
-      "filePath": "_app/todos.tsx",
+    "/_app/dashboard": {
+      "filePath": "_app/dashboard.tsx",
+      "parent": "/_app"
+    },
+    "/_app/discussions": {
+      "filePath": "_app/discussions.tsx",
+      "parent": "/_app",
+      "children": [
+        "/_app/discussions/$discussionId",
+        "/_app/discussions/"
+      ]
+    },
+    "/_app/profile": {
+      "filePath": "_app/profile.tsx",
+      "parent": "/_app"
+    },
+    "/_app/users": {
+      "filePath": "_app/users.tsx",
       "parent": "/_app"
     },
     "/_auth/login": {
@@ -168,6 +262,14 @@ export const routeTree = rootRoute.addChildren({
     "/_auth/register": {
       "filePath": "_auth/register.tsx",
       "parent": "/_auth"
+    },
+    "/_app/discussions/$discussionId": {
+      "filePath": "_app/discussions.$discussionId.tsx",
+      "parent": "/_app/discussions"
+    },
+    "/_app/discussions/": {
+      "filePath": "_app/discussions.index.tsx",
+      "parent": "/_app/discussions"
     }
   }
 }

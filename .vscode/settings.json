@@ -2,7 +2,7 @@
   "eslint.workingDirectories": [{ "mode": "auto" }],
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
-  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.preferences.importModuleSpecifier": "shortest",
   "typescript.preferences.autoImportFileExcludePatterns": [
     "react-day-picker",
     "@radix-ui/react-accordion",

@@ -28,10 +28,11 @@ import {
 } from '@/components/ui';
 import { loginUserSchema } from '@/db/schema';
 
-const fallback = '/todos';
+const fallback = '/dashboard';
 
 export const Route = createFileRoute('/_auth/login')({
   beforeLoad: ({ context, search }) => {
+    console.log();
     if (context.auth.isAuthenticated) {
       throw redirect({ to: search.redirect ?? fallback });
     }
